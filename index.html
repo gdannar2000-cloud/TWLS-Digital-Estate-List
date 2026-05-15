@@ -430,18 +430,58 @@
   </div>
 </div>
 
-<div class="toolbar">
-  <span class="progress-label">Overall Progress</span>
-  <span class="progress-count" id="progress-count">0 of 0 complete</span>
-  <button class="btn" onclick="expandAll()">Expand All</button>
-  <button class="btn" onclick="collapseAll()">Collapse All</button>
-  <button class="btn" onclick="resetAll()">Reset</button>
-  <button class="btn btn-primary" onclick="window.print()">&#128438; Print Checklist</button>
+<!-- GATE: shown until form submitted -->
+<div id="gate" style="display:flex; justify-content:center; align-items:center; padding: 60px 20px;">
+  <div style="background: #1c1c1e; border: 1px solid rgba(155,107,58,0.3); border-radius: 4px; padding: 48px; max-width: 560px; width: 100%;">
+    <div style="font-size:10px; letter-spacing:0.3em; text-transform:uppercase; color:#C4894E; margin-bottom:10px;">Free Resource</div>
+    <h2 style="font-family: 'Cormorant Garamond', serif; font-size:32px; font-weight:400; color:#F5F0E8; margin-bottom:16px;">Access Your Digital Estate Checklist</h2>
+    <p style="font-size:13px; color:#A89880; line-height:1.7; margin-bottom:32px;">Enter your information below to unlock the full checklist. A TWLS Group advisor will follow up to make sure your estate plan has the most up to date digital asset language.</p>
+
+    <div id="form-error" style="display:none; background:rgba(200,80,60,0.15); border:1px solid rgba(200,80,60,0.3); color:#e07060; padding:10px 14px; border-radius:2px; font-size:12px; margin-bottom:16px;"></div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+      <div>
+        <label style="display:block; font-size:9px; letter-spacing:0.25em; text-transform:uppercase; color:#A89880; margin-bottom:8px;">First Name</label>
+        <input id="firstName" type="text" placeholder="First name" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(155,107,58,0.3); color:#F0EBE0; padding:12px 14px; font-family:'Lato',sans-serif; font-size:13px; border-radius:2px; outline:none;">
+      </div>
+      <div>
+        <label style="display:block; font-size:9px; letter-spacing:0.25em; text-transform:uppercase; color:#A89880; margin-bottom:8px;">Last Name</label>
+        <input id="lastName" type="text" placeholder="Last name" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(155,107,58,0.3); color:#F0EBE0; padding:12px 14px; font-family:'Lato',sans-serif; font-size:13px; border-radius:2px; outline:none;">
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px;">
+      <div>
+        <label style="display:block; font-size:9px; letter-spacing:0.25em; text-transform:uppercase; color:#A89880; margin-bottom:8px;">Email Address</label>
+        <input id="email" type="email" placeholder="you@email.com" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(155,107,58,0.3); color:#F0EBE0; padding:12px 14px; font-family:'Lato',sans-serif; font-size:13px; border-radius:2px; outline:none;">
+      </div>
+      <div>
+        <label style="display:block; font-size:9px; letter-spacing:0.25em; text-transform:uppercase; color:#A89880; margin-bottom:8px;">Phone Number</label>
+        <input id="phone" type="tel" placeholder="409-555-0100" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(155,107,58,0.3); color:#F0EBE0; padding:12px 14px; font-family:'Lato',sans-serif; font-size:13px; border-radius:2px; outline:none;">
+      </div>
+    </div>
+
+    <button id="submit-btn" onclick="submitForm()" style="width:100%; background:#9B6B3A; border:none; color:#fff; padding:16px; font-family:'Lato',sans-serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; cursor:pointer; border-radius:2px; transition: background 0.2s;">
+      Unlock My Checklist →
+    </button>
+
+    <p style="text-align:center; font-size:11px; color:#A89880; margin-top:16px;">🔒 Your information is kept private and will only be used by TWLS Group to follow up with you.</p>
+  </div>
 </div>
 
-<main>
-  <div id="sections-container"></div>
-</main>
+<!-- CHECKLIST: hidden until form submitted -->
+<div id="checklist" style="display:none;">
+  <div class="toolbar">
+    <span class="progress-label">Overall Progress</span>
+    <span class="progress-count" id="progress-count">0 of 0 complete</span>
+    <button class="btn" onclick="expandAll()">Expand All</button>
+    <button class="btn" onclick="collapseAll()">Collapse All</button>
+    <button class="btn" onclick="resetAll()">Reset</button>
+    <button class="btn btn-primary" onclick="window.print()">&#128438; Print Checklist</button>
+  </div>
+  <main>
+    <div id="sections-container"></div>
+  </main>
+</div>
 
 <footer>
   <p>Advisory services offered through Tubreauxs Wealth &amp; Legacy Solutions, LLC, a Registered Investment Advisor in Texas and Louisiana. Estate plans provided by <a href="https://www.familyestatedocs.com">FamilyEstateDocs.com</a>. This checklist is provided for informational and administrative purposes only and does not constitute legal advice. TX License #1231925 &nbsp;|&nbsp; <a href="https://www.twlsgroup.com">www.twlsgroup.com</a></p>
@@ -653,6 +693,45 @@ function resetAll()   {
 }
 
 render();
+
+async function submitForm() {
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName  = document.getElementById('lastName').value.trim();
+  const email     = document.getElementById('email').value.trim();
+  const phone     = document.getElementById('phone').value.trim();
+  const errorEl   = document.getElementById('form-error');
+  const btn       = document.getElementById('submit-btn');
+
+  if (!firstName || !lastName || !email || !phone) {
+    errorEl.textContent = 'Please fill in all fields.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errorEl.textContent = 'Please enter a valid email address.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  errorEl.style.display = 'none';
+  btn.textContent = 'Submitting...';
+  btn.style.opacity = '0.7';
+  btn.disabled = true;
+
+  try {
+    await fetch('https://hook.us2.make.com/okg5wen41sny9mylqteo75rd702ba4hs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: firstName, last_name: lastName, email, phone })
+    });
+  } catch(e) {
+    console.log('Webhook note:', e);
+  }
+
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('checklist').style.display = 'block';
+  window.scrollTo(0, 0);
+}
 
 </script>
 
